@@ -2,7 +2,7 @@
 {
     public class BaseEntity<TID>
     {
-        public  TID MyProperty { get; set; }
+        public  TID Id { get; set; }
         public DateTime CreatedAt { get; set; }= DateTime.Now;
         public DateTime LastUpdatedAt { get; set;} = DateTime.Now;
         public bool IsActive { get; set; } = true;
