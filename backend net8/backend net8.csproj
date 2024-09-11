@@ -23,9 +23,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Controllers\" />
     <Folder Include="Core\Constants\" />
     <Folder Include="Core\DTOs\" />
     <Folder Include="Core\Interfaces\" />
+    <Folder Include="Core\ApplicationDbContext\" />
     <Folder Include="Core\Services\" />
   </ItemGroup>
 
