@@ -10,6 +10,6 @@ namespace backend_net8.Core.Entities
         public required string Address { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         [NotMapped]
-        public required IList<string> Roles { get; set; }
+        public IList<string> Roles { get; set; }
     }
 }

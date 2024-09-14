@@ -8,7 +8,7 @@ namespace backend_net8.Core.Interfaces
     {
         Task<GeneralServiceResponseDto> SeedRolesAsync();
         Task<GeneralServiceResponseDto> RegisterAsync(RegisterDto registerDto);
-        Task<GeneralServiceResponseDto> LoginAsync(LoginDto loginDto);
+        Task<LoginServiceResponseDto?> LoginAsync(LoginDto loginDto);
         Task<GeneralServiceResponseDto> UpdateRoleAsync(ClaimsPrincipal User, UpdateRoleDto updateRoleDto);
         Task<GeneralServiceResponseDto> MeAsync(MeDto meDto);
         Task<GeneralServiceResponseDto> GetUsersListAsync();
