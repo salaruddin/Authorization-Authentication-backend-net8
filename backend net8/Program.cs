@@ -1,4 +1,4 @@
-using backend_net8.Core.ApplicationDbContext;
+using backend_net8.Core.DbContext;
 using backend_net8.Core.Entities;
 using backend_net8.Core.Interfaces;
 using backend_net8.Core.Services;
