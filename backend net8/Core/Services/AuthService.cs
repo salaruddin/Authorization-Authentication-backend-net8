@@ -4,9 +4,6 @@ using backend_net8.Core.DTOs.General;
 using backend_net8.Core.Entities;
 using backend_net8.Core.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -164,6 +161,129 @@ namespace backend_net8.Core.Services
 
         }
 
+        public async Task<GeneralServiceResponseDto> UpdateRoleAsync(ClaimsPrincipal User, UpdateRoleDto updateRoleDto)
+        {
+            var user = await _userManager.FindByNameAsync(updateRoleDto.UserName);
+
+            if (user is null)
+            {
+                return new GeneralServiceResponseDto()
+                {
+                    IsSucceed = false,
+                    StatusCode = 404,
+                    Message = "User not found"
+                };
+            }
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            //if User is admin, it allows to change the users having USER,MANAGER roles to USER or MANAGER role. it can't change other than user and manger roles.
+            if (User.IsInRole(StaticUserRoles.ADMIN))
+            {
+                if (updateRoleDto.NewRole == RoleType.USER || updateRoleDto.NewRole == RoleType.MANAGER)
+                {
+                    if (user.Roles.Any(r => r.Equals(StaticUserRoles.ADMIN) || r.Equals(StaticUserRoles.OWNER)))
+                    {
+                        return new GeneralServiceResponseDto()
+                        {
+                            IsSucceed = false,
+                            StatusCode = 403,
+                            Message = "You are not allowed to change role of this user"
+                        };
+                    }
+                    else
+                    {
+                        await _userManager.RemoveFromRolesAsync(user, userRoles);
+                        await _userManager.AddToRoleAsync(user, updateRoleDto.NewRole.ToString());
+                        await _logService.SaveNewLog(user.UserName, "User roles updated");
+
+                        return new GeneralServiceResponseDto()
+                        {
+                            IsSucceed = true,
+                            StatusCode = 200,
+                            Message = "User role updated successfully"
+                        };
+                    }
+                }
+
+                //if role that is being changed, is not user or manager
+                else
+                {
+                    return new GeneralServiceResponseDto()
+                    {
+                        IsSucceed = false,
+                        StatusCode = 403,
+                        Message = "You are not allowed to change role of this user"
+                    };
+                }
+
+            }
+            else
+            {
+                if (user.Roles.Any(r => r.Equals(StaticUserRoles.OWNER)))
+                {
+                    return new GeneralServiceResponseDto()
+                    {
+                        IsSucceed = false,
+                        StatusCode = 403,
+                        Message = "You are not allowed to change role of this user"
+                    };
+                }
+
+                await _userManager.RemoveFromRolesAsync(user, userRoles);
+                await _userManager.AddToRoleAsync(user, updateRoleDto.NewRole.ToString());
+                await _logService.SaveNewLog(user.UserName, "Role updated successfully");
+                return new GeneralServiceResponseDto()
+                {
+                    IsSucceed = true,
+                    StatusCode = 200,
+                    Message = "Role Updated"
+                };
+            }
+
+
+
+        }
+
+
+        public async Task<UserInfoResult> GetUserDetailsByUserName(string userName)
+        {
+            throw new NotImplementedException();
+            var user = _userManager.Users.First(x => x.UserName == userName);
+            if (user != null)
+            {
+                return new UserInfoResult()
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    CreatedAt = user.CreatedAt,
+                    Roles = user.Roles,
+                };
+            }
+
+        }
+
+        public Task<GeneralServiceResponseDto> GetUsersListAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+
+
+        public Task<GeneralServiceResponseDto> MeAsync(MeDto meDto)
+        {
+            throw new NotImplementedException();
+        }
+
+
+
+
+
+
+
         private async Task<string> GenerateJWTTokenAsync(ApplicationUser user)
         {
             var authClaims = new List<Claim>()
@@ -206,47 +326,6 @@ namespace backend_net8.Core.Services
                 CreatedAt = user.CreatedAt,
                 Roles = roles
             };
-        }
-
-        public async Task<UserInfoResult> GetUserDetailsByUserName(string userName)
-        {
-            throw new NotImplementedException();
-            var user = _userManager.Users.First(x => x.UserName == userName);
-            if (user != null)
-            {
-                return new UserInfoResult()
-                {
-                    Id = user.Id,
-                    UserName = user.UserName,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Email = user.Email,
-                    CreatedAt = user.CreatedAt,
-                    Roles = user.Roles,
-                };
-            }
-
-        }
-
-        public Task<GeneralServiceResponseDto> GetUsersListAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-
-
-        public Task<GeneralServiceResponseDto> MeAsync(MeDto meDto)
-        {
-            throw new NotImplementedException();
-        }
-
-
-
-
-
-        public Task<GeneralServiceResponseDto> UpdateRoleAsync(ClaimsPrincipal User, UpdateRoleDto updateRoleDto)
-        {
-            throw new NotImplementedException();
         }
     }
 }

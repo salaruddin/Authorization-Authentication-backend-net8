@@ -9,6 +9,7 @@ namespace backend_net8.Core.DTOs.Auth
     }
     public enum RoleType
     {
+        OWNER,
         ADMIN,
         MANAGER,
         USER
