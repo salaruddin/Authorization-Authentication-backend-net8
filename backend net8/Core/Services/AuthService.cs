@@ -4,6 +4,7 @@ using backend_net8.Core.DTOs.General;
 using backend_net8.Core.Entities;
 using backend_net8.Core.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -245,44 +246,77 @@ namespace backend_net8.Core.Services
 
         }
 
-
-        public async Task<UserInfoResult> GetUserDetailsByUserName(string userName)
+        public async Task<LoginServiceResponseDto?> MeAsync(MeDto meDto)
         {
-            throw new NotImplementedException();
-            var user = _userManager.Users.First(x => x.UserName == userName);
-            if (user != null)
+            ClaimsPrincipal handler = new JwtSecurityTokenHandler().ValidateToken(meDto.Token, new TokenValidationParameters()
             {
-                return new UserInfoResult()
-                {
-                    Id = user.Id,
-                    UserName = user.UserName,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Email = user.Email,
-                    CreatedAt = user.CreatedAt,
-                    Roles = user.Roles,
-                };
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidIssuer = _configuration["JWT:ValidIssuer"],
+                ValidAudience = _configuration["JWT:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]))
+            }, out SecurityToken securityToken);
+
+            string decodedUserName = handler.Claims.First(q => q.Type == ClaimTypes.Name).Value;
+            if (decodedUserName == null)
+                return null;
+
+            var user = await _userManager.FindByNameAsync(decodedUserName);
+            if (user == null)
+                return null;
+
+            var newToken = await GenerateJWTTokenAsync(user);
+            var roles = await _userManager.GetRolesAsync(user);
+            var userInfo = GenerateUserInfoObject(user, roles);
+
+            await _logService.SaveNewLog(user.UserName, "New Token Generated");
+
+            return new LoginServiceResponseDto()
+            {
+                NewToken = newToken,
+                UserInfo = userInfo,
+            };
+
+
+
+        }
+
+        public async Task<IEnumerable<UserInfoResult>> GetUsersListAsync()
+        {
+            var users = await _userManager.Users.ToListAsync();
+            List<UserInfoResult> result = new List<UserInfoResult>();
+
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                var userInfo = GenerateUserInfoObject(user, roles);
+                result.Add(userInfo);
             }
-
+            return result;
         }
 
-        public Task<GeneralServiceResponseDto> GetUsersListAsync()
+        public async Task<UserInfoResult> GetUserDetailsByUserNameAsync(string userName)
         {
-            throw new NotImplementedException();
+
+            var user = await _userManager.FindByNameAsync(userName);
+            if (user != null)
+                return null;
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var userInfo =  GenerateUserInfoObject(user, roles);
+            return userInfo;
+            
+            
         }
 
-
-
-        public Task<GeneralServiceResponseDto> MeAsync(MeDto meDto)
+        public async Task<IEnumerable<string>> GetUsernamesListAsync(string userName)
         {
-            throw new NotImplementedException();
+            var usernames = await _userManager.Users
+                 .Select(x => x.UserName)
+                 .ToListAsync();
+            return usernames;
         }
-
-
-
-
-
-
 
         private async Task<string> GenerateJWTTokenAsync(ApplicationUser user)
         {
@@ -327,5 +361,6 @@ namespace backend_net8.Core.Services
                 Roles = roles
             };
         }
+
     }
 }
