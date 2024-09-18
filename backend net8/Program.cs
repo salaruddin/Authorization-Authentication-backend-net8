@@ -61,8 +61,10 @@ builder.Services
 
     });
 
-//inject services
+//Depnedency injection
 builder.Services.AddScoped<ILogService,LogService>();
+builder.Services.AddScoped<IMessageService,IMessageService>();
+builder.Services.AddScoped<IAuthService,AuthService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
