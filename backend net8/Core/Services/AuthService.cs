@@ -86,7 +86,7 @@ namespace backend_net8.Core.Services
             }
 
             ApplicationUser user = await _userManager.FindByNameAsync(registerDto.UserName);
-            if (user is null)
+            if (user is not null)
             {
                 return new GeneralServiceResponseDto()
                 {
