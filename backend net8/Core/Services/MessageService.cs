@@ -35,7 +35,7 @@ namespace backend_net8.Core.Services
             }
 
             var isReceivedUserNameValid = userManager.Users.Any(u => u.UserName == createMessageDto.ReceiverUserName);
-            if (isReceivedUserNameValid)
+            if (!isReceivedUserNameValid)
             {
                 return new GeneralServiceResponseDto()
                 {

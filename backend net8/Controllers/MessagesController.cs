@@ -45,7 +45,7 @@ namespace backend_net8.Controllers
         [Authorize(Roles = StaticUserRoles.OwnerAdmin)]
         public async Task<ActionResult<IEnumerable<GetMessageDto>>> GetMessages()
         {
-            var messages = _messageService.GetMessagesAsync();
+            var messages = await _messageService.GetMessagesAsync();
             return Ok(messages); 
         }
 
