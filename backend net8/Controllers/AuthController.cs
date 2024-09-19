@@ -85,10 +85,9 @@ namespace backend_net8.Controllers
         //list of all users with details
         [HttpGet]
         [Route("users")]
-        [Authorize(Roles = StaticUserRoles.OwnerAdmin)]
         public async Task<ActionResult<UserInfoResult>> GetUsersList()
         {
-            var users = authService.GetUsersListAsync();
+            var users = await authService.GetUsersListAsync();
             return Ok(users);
         }
 
@@ -109,7 +108,7 @@ namespace backend_net8.Controllers
         [Route("usernames")]
         public async Task<ActionResult<IEnumerable<string>>> GetUserNameList()
         {
-            var usernames = await authService.GetUsersListAsync();
+            var usernames = await authService.GetUsernamesListAsync();
             return Ok(usernames);
         }
 

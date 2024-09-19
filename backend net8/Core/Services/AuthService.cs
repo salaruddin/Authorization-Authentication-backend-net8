@@ -221,7 +221,7 @@ namespace backend_net8.Core.Services
             }
             else
             {
-                if (user.Roles.Any(r => r.Equals(StaticUserRoles.OWNER)))
+                if (userRoles.Any(r => r.Equals(StaticUserRoles.OWNER)))
                 {
                     return new GeneralServiceResponseDto()
                     {
@@ -253,7 +253,7 @@ namespace backend_net8.Core.Services
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidIssuer = _configuration["JWT:ValidIssuer"],
-                ValidAudience = _configuration["JWT:Audience"],
+                ValidAudience = _configuration["JWT:ValidAudience"],
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]))
             }, out SecurityToken securityToken);
 
@@ -299,7 +299,7 @@ namespace backend_net8.Core.Services
         {
 
             var user = await _userManager.FindByNameAsync(userName);
-            if (user != null)
+            if (user == null)
                 return null;
 
             var roles = await _userManager.GetRolesAsync(user);
@@ -310,7 +310,7 @@ namespace backend_net8.Core.Services
             
         }
 
-        public async Task<IEnumerable<string>> GetUsernamesListAsync(string userName)
+        public async Task<IEnumerable<string>> GetUsernamesListAsync()
         {
             var usernames = await _userManager.Users
                  .Select(x => x.UserName)
@@ -354,6 +354,7 @@ namespace backend_net8.Core.Services
             return new UserInfoResult()
             {
                 Id = user.Id,
+                UserName = user.UserName,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,

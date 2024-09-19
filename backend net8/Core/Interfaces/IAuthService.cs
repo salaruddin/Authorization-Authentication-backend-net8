@@ -13,7 +13,7 @@ namespace backend_net8.Core.Interfaces
         Task<LoginServiceResponseDto?> MeAsync(MeDto meDto);
         Task<IEnumerable<UserInfoResult>> GetUsersListAsync();
         Task<UserInfoResult> GetUserDetailsByUserNameAsync(string userName);
-        Task<IEnumerable<string>> GetUsernamesListAsync(string userName);
+        Task<IEnumerable<string>> GetUsernamesListAsync();
 
     }
 }

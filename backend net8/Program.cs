@@ -28,7 +28,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddDefaultTokenProviders();
 
 //config identity
-builder.Services.Configure<IdentityOptions>(options => {
+builder.Services.Configure<IdentityOptions>(options =>
+{
     options.Password.RequiredLength = 8;
     options.Password.RequireDigit = false;
     options.Password.RequireLowercase = false;
@@ -42,12 +43,14 @@ builder.Services.Configure<IdentityOptions>(options => {
 });
 
 builder.Services
-    .AddAuthentication(options => {
+    .AddAuthentication(options =>
+    {
         options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
         options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     })
-    .AddJwtBearer(options => { 
+    .AddJwtBearer(options =>
+    {
         options.SaveToken = true;
         options.RequireHttpsMetadata = false;
         options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
@@ -62,9 +65,9 @@ builder.Services
     });
 
 //Depnedency injection
-builder.Services.AddScoped<ILogService,LogService>();
-builder.Services.AddScoped<IMessageService,MessageService>();
-builder.Services.AddScoped<IAuthService,AuthService>();
+builder.Services.AddScoped<ILogService, LogService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -80,6 +83,13 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(options =>
+options
+.AllowAnyHeader()
+.AllowAnyOrigin()
+.AllowAnyMethod());
+
 app.UseAuthentication();
 app.UseAuthorization();
 
